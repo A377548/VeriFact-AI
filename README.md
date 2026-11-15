@@ -327,6 +327,37 @@ The following tests were performed:
 
 VeriFact AI can now generate an original answer and multiple independent responses. These outputs form the input for the next phase: sentence segmentation and atomic factual claim extraction.
 
+## Phase 3: Claim Extraction and Structuring
+
+Implemented a claim extraction pipeline that converts
+LLM-generated answers into structured factual claims.
+
+### Components
+
+1. Sentence segmentation using spaCy.
+2. Atomic factual claim extraction using Gemini.
+3. Named entity recognition using spaCy.
+4. Unique claim ID assignment.
+5. Structured claim output in JSON format.
+6. Integrated claim extraction pipeline.
+
+### Testing
+
+- Sentence segmentation tested successfully.
+- Atomic claim extraction tested with Gemini.
+- Named entity extraction tested.
+- Claim IDs and structured output verified.
+- Empty and whitespace-only input validation passed.
+- Complete application integration tested using mocked
+  responses without consuming API quota.
+
+### Current Limitations
+
+- Named entity recognition may misclassify certain entities.
+- Actual Gemini extraction quality requires further evaluation.
+- Mocked integration tests do not measure real LLM accuracy.
+
+
 # 8. How to Run the Project
 
 ### Step 1: Clone or open the project
