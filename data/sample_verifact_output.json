@@ -1,0 +1,80 @@
+
+{
+    "project": "VeriFact AI",
+    "schema_version": "1.0",
+    "question": "Who discovered penicillin?",
+    "original_answer": "Alexander Fleming discovered penicillin in 1928. He made the discovery at St. Mary's Hospital in London.",
+    "model": "gemini-3.8-flash",
+    "samples": [
+        {
+            "sample_id": 1,
+            "answer": "Alexander Fleming discovered penicillin in 1928."
+        },
+        {
+            "sample_id": 2,
+            "answer": "Penicillin was discovered by Alexander Fleming."
+        },
+        {
+            "sample_id": 3,
+            "answer": "Alexander Fleming discovered penicillin in 1928 at St. Mary's Hospital."
+        }
+    ],
+    "claims": [
+        {
+            "claim_id": "C001",
+            "claim": "Alexander Fleming discovered penicillin in 1928.",
+            "source_sentence_indices": [1],
+            "source_sentences": [
+                "Alexander Fleming discovered penicillin in 1928."
+            ],
+            "entities": [
+                {
+                    "text": "Alexander Fleming",
+                    "label": "PERSON",
+                    "description": "People, including fictional"
+                },
+                {
+                    "text": "1928",
+                    "label": "DATE",
+                    "description": "Absolute or relative dates or periods"
+                }
+            ],
+            "is_valid": true,
+            "issues": []
+        },
+        {
+            "claim_id": "C002",
+            "claim": "Alexander Fleming made the discovery at St. Mary's Hospital in London.",
+            "source_sentence_indices": [1, 2],
+            "source_sentences": [
+                "Alexander Fleming discovered penicillin in 1928.",
+                "He made the discovery at St. Mary's Hospital in London."
+            ],
+            "entities": [
+                {
+                    "text": "Alexander Fleming",
+                    "label": "PERSON",
+                    "description": "People, including fictional"
+                },
+                {
+                    "text": "St. Mary's Hospital",
+                    "label": "ORG",
+                    "description": "Companies, agencies, institutions, etc."
+                },
+                {
+                    "text": "London",
+                    "label": "GPE",
+                    "description": "Countries, cities, states"
+                }
+            ],
+            "is_valid": true,
+            "issues": []
+        }
+    ],
+    "claim_summary": {
+        "sentence_count": 2,
+        "claim_count": 2,
+        "valid_claim_count": 2,
+        "invalid_claim_count": 0
+    }
+}
