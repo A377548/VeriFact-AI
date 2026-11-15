@@ -1,0 +1,31 @@
+{
+    "E001": [
+        "Alexander Fleming discovered penicillin.",
+        "Penicillin was discovered in 1928.",
+        "Alexander Fleming discovered penicillin at St. Mary's Hospital.",
+        "St. Mary's Hospital is located in London."
+    ],
+    "E002": [
+        "Marie Curie discovered polonium.",
+        "Marie Curie discovered radium.",
+        "Marie Curie received the Nobel Prize in Physics in 1903."
+    ],
+    "E003": [
+        "The Eiffel Tower is located in Paris.",
+        "The Eiffel Tower was completed in 1889."
+    ],
+    "E004": [
+        "Barack Obama was the 44th President of the United States.",
+        "Barack Obama served as president from 2009 to 2017.",
+        "Barack Obama was born in Honolulu, Hawaii."
+    ],
+    "E005": [
+        "Water freezes at 0 degrees Celsius under standard atmospheric pressure.",
+        "Water boils at 100 degrees Celsius under standard atmospheric pressure."
+    ],
+    "E006": [
+        "William Shakespeare wrote Hamlet.",
+        "Hamlet is a tragedy.",
+        "Hamlet is set in Denmark."
+    ]
+}

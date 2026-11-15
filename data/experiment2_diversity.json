@@ -1,0 +1,30 @@
+{
+    "experiment": "Sampling Diversity",
+    "question": "Who discovered penicillin and when?",
+    "model": "gemini-3.8-flash",
+    "successful_sample_count": 3,
+    "metric": "Word-set Jaccard similarity",
+    "pairwise_results": [
+        {
+            "sample_1": 1,
+            "sample_2": 3,
+            "jaccard_similarity": 0.6452,
+            "lexical_diversity": 0.3548
+        },
+        {
+            "sample_1": 1,
+            "sample_2": 5,
+            "jaccard_similarity": 0.6393,
+            "lexical_diversity": 0.3607
+        },
+        {
+            "sample_1": 3,
+            "sample_2": 5,
+            "jaccard_similarity": 0.7255,
+            "lexical_diversity": 0.2745
+        }
+    ],
+    "average_similarity": 0.67,
+    "average_lexical_diversity": 0.33,
+    "interpretation_note": "Lexical overlap measures word-set similarity, not semantic similarity or factual correctness."
+}

@@ -25,8 +25,14 @@ predictions = {
     ]
 }
 
+# Evaluate only examples that have test predictions.
+test_dataset = [
+    example for example in REFERENCE_DATASET
+    if example["example_id"] in predictions
+]
+
 result = evaluator.evaluate_dataset(
-    REFERENCE_DATASET,
+    test_dataset,
     predictions
 )
 
@@ -44,6 +50,7 @@ for key, value in result.items():
     if key != "examples":
         print(f"{key}: {value}")
 
+# Expected results for these three controlled examples.
 assert result["total_true_positives"] == 6
 assert result["total_false_positives"] == 1
 assert result["total_false_negatives"] == 3
@@ -52,4 +59,4 @@ assert result["micro_precision"] == 0.8571
 assert result["micro_recall"] == 0.6667
 assert result["micro_f1_score"] == 0.75
 
-print("\nComplete dataset evaluation test passed!")
+print("\nComplete claim evaluation test passed!")
