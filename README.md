@@ -39,7 +39,7 @@ The project builds upon the ideas introduced in **SelfCheckGPT (Manakul et al., 
 
 | Component | Technology |
 |---|---|
-| Programming Language | Python 3.13.7 |
+| Programming Language | Python 3.13 |
 | Development Environment | Visual Studio Code |
 | LLM API | Google Gemini API |
 | Selected Model | gemini-3.8-flash |
@@ -49,11 +49,11 @@ The project builds upon the ideas introduced in **SelfCheckGPT (Manakul et al., 
 | Data Handling | pandas |
 | Data Validation | Pydantic |
 | HTTP Requests | requests |
+| Semantic Similarity | BERTScore |
+| NLI Model for Consistency Analysis | cross-encoder/nli-deberta-v3-small |
 | Version Control | Git |
 | Planned Dashboard | Streamlit |
 | Planned Evidence Source | Wikipedia API |
-| Planned Semantic Analysis | Sentence Transformers / BERTScore |
-| Planned Verification | Natural Language Inference (NLI) |
 
 ---
 
@@ -61,8 +61,6 @@ The project builds upon the ideas introduced in **SelfCheckGPT (Manakul et al., 
 
 ```text
 VeriFact-AI/
-│
-├── .venv/
 │
 ├── generation/
 │   ├── __init__.py
@@ -77,11 +75,33 @@ VeriFact-AI/
 │   ├── entity_extractor.py
 │   └── claim_formatter.py
 │
-├── data/
+├── hallucination_detection/
+│   ├── __init__.py
+│   ├── selfcheck.py
+│   ├── bertscore_detector.py
+│   ├── nli_detector.py
+│   ├── scoring_engine.py
+│   └── detection_pipeline.py
+│
+├── experiments/
+│   ├── test_real_pipeline.py
+│   ├── test_nli_cases.py
+│   ├── test_nli_direction.py
+│   └── evaluate_nli.py
+│
+├── docs/
+│   ├── INTEGRATION_CONTRACT.md
+│   └── PERSON2_EVALUATION.md
 │
 ├── tests/
-│   └── __init__.py
+│   ├── test_sample_generator_failure.py
+│   ├── test_selfcheck.py
+│   ├── test_bertscore_detector.py
+│   ├── test_nli_detector.py
+│   ├── test_scoring_engine.py
+│   └── test_detection_pipeline.py
 │
+├── data/
 ├── .env
 ├── .env.example
 ├── .gitignore
@@ -90,7 +110,7 @@ VeriFact-AI/
 └── README.md
 ```
 
-*Note: Some files and folders are planned for upcoming phases and have not necessarily been implemented yet.*
+*Note: The structure shows the current implemented modules and selected project files. Additional components for evidence retrieval, final verification, and the dashboard are planned for later integration.*
 
 ---
 
@@ -119,21 +139,10 @@ Prepare the development environment and install all required dependencies before
 
 ### Environment Details
 
-- Python version: 3.13.7
+- Python version: 3.13
 - IDE: Visual Studio Code
 - Operating System: Windows
 - Virtual environment: `.venv`
-
-### Dependencies Installed
-
-```text
-google-genai
-python-dotenv
-spacy
-pydantic
-pandas
-requests
-```
 
 ### Configuration
 
@@ -258,28 +267,12 @@ The initial VeriFact AI application successfully accepts a question, communicate
 
 ---
 
-# 6. Upcoming Implementation Phases
+## Phase 2: Independent Response Generation
 
-| Phase | Planned Work | Status |
-|---|---|---|
-| Phase 0 | Project setup and environment configuration | Completed |
-| Phase 1 | Gemini integration and original response generation | Completed |
-| Phase 2 | Multiple independent response generation | Pending |
-| Phase 3 | Sentence segmentation and atomic claim extraction | Pending |
-| Phase 4 | SelfCheckGPT-based consistency analysis | Pending |
-| Phase 5 | External evidence retrieval and ranking | Pending |
-| Phase 6 | NLI-based evidence verification | Pending |
-| Phase 7 | Claim-level explanations and adaptive verification | Pending |
-| Phase 8 | Streamlit dashboard and integration | Pending |
-| Phase 9 | Testing, evaluation, and performance analysis | Pending |
-
----
-
-### Phase 2: Independent Response Generation
-
-**Status: Completed**
+<ins>Status: Completed</ins>
 
 ### Objective
+
 Generate multiple independent responses to the same question. These responses will later be compared with the original answer to identify inconsistencies using SelfCheckGPT-inspired techniques.
 
 ### Implementation
@@ -287,6 +280,7 @@ Generate multiple independent responses to the same question. These responses wi
 Created `generation/sample_generator.py` with a `SampleGenerator` class.
 
 Key functionality:
+
 - Generates multiple responses using separate Gemini API requests.
 - Uses the same original question for every request.
 - Does not ask Gemini to paraphrase or refer to previous answers.
@@ -298,6 +292,7 @@ Key functionality:
 ### Integration
 
 Updated `main.py` to:
+
 1. Accept a user question.
 2. Generate the original answer.
 3. Generate three independent responses.
@@ -305,8 +300,6 @@ Updated `main.py` to:
 5. Display the generation summary and any failed requests.
 
 ### Testing
-
-The following tests were performed:
 
 - Successfully generated an original answer.
 - Successfully generated independent responses.
@@ -323,14 +316,19 @@ The following tests were performed:
 - `main.py`
 - `tests/test_sample_generator_failure.py`
 
-### Outcome
+### Phase 2 Result
 
-VeriFact AI can now generate an original answer and multiple independent responses. These outputs form the input for the next phase: sentence segmentation and atomic factual claim extraction.
+VeriFact AI can now generate an original answer and multiple independent responses. These outputs form the input for sentence segmentation and atomic factual claim extraction.
+
+---
 
 ## Phase 3: Claim Extraction and Structuring
 
-Implemented a claim extraction pipeline that converts
-LLM-generated answers into structured factual claims.
+<ins>Status: Completed</ins>
+
+### Objective
+
+Convert LLM-generated answers into structured factual claims that can be analyzed independently.
 
 ### Components
 
@@ -348,8 +346,7 @@ LLM-generated answers into structured factual claims.
 - Named entity extraction tested.
 - Claim IDs and structured output verified.
 - Empty and whitespace-only input validation passed.
-- Complete application integration tested using mocked
-  responses without consuming API quota.
+- Complete application integration tested using mocked responses without consuming API quota.
 
 ### Current Limitations
 
@@ -357,8 +354,185 @@ LLM-generated answers into structured factual claims.
 - Actual Gemini extraction quality requires further evaluation.
 - Mocked integration tests do not measure real LLM accuracy.
 
+### Phase 3 Result
 
-# 8. How to Run the Project
+The claim extraction pipeline converts generated answers into structured claims, providing the input required for claim-level hallucination and consistency analysis.
+
+---
+
+## Phase 4: Hallucination and Consistency Detection
+
+<ins>Status: Completed – Person 2 Implementation</ins>
+
+### Objective
+
+Identify potentially inconsistent or suspicious factual claims by comparing claims from the original LLM-generated answer against multiple independently generated responses.
+
+Person 2 implemented a modular hallucination detection pipeline using three complementary detection techniques: SelfCheck baseline, BERTScore, and Natural Language Inference (NLI).
+
+### 1. SelfCheck Baseline — `hallucination_detection/selfcheck.py`
+
+Implemented a lightweight consistency detection approach inspired by SelfCheckGPT.
+
+Main responsibilities:
+
+- Compare original answer claims against independent response samples.
+- Measure word-level Jaccard similarity.
+- Identify possible inconsistencies between the original claim and generated responses.
+- Produce a consistency-based detection score.
+
+This implementation serves as a baseline and is not a complete reproduction of the canonical SelfCheckGPT method.
+
+### 2. BERTScore Detector — `hallucination_detection/bertscore_detector.py`
+
+Implemented semantic similarity analysis using BERTScore with the `roberta-base` model.
+
+Main responsibilities:
+
+- Compare the original claim with independently generated responses.
+- Calculate semantic similarity scores for each sample.
+- Compute average similarity.
+- Calculate disagreement as:
+
+```text
+Disagreement Score = 1 - Average Similarity
+```
+
+A higher disagreement score indicates greater semantic variation between the original claim and generated samples.
+
+### 3. NLI Detector — `hallucination_detection/nli_detector.py`
+
+Implemented a Natural Language Inference detector using:
+
+```text
+cross-encoder/nli-deberta-v3-small
+```
+
+The detector compares an independent sample as the premise and the original claim as the hypothesis.
+
+It produces three relationship predictions:
+
+- **Entailment:** The sample supports the original claim.
+- **Contradiction:** The sample contradicts the original claim.
+- **Neutral:** The sample does not provide sufficient information to establish either relationship.
+
+The detector reports class probabilities and is retained as a diagnostic signal.
+
+### 4. Scoring Engine — `hallucination_detection/scoring_engine.py`
+
+Implemented a scoring engine to combine consistency and semantic disagreement signals.
+
+Default scoring weights:
+
+| Detector | Weight |
+|---|---:|
+| SelfCheck | 50% |
+| BERTScore | 50% |
+| NLI | 0% |
+
+The NLI detector is still executed for every claim, but its output does not contribute to the default combined risk score.
+
+This decision was made after evaluation showed that the selected NLI model frequently misclassified neutral examples as contradictions.
+
+The combined score is experimental and should not be interpreted as a calibrated probability that a claim is hallucinated.
+
+### 5. Detection Pipeline — `hallucination_detection/detection_pipeline.py`
+
+Implemented an integrated pipeline that processes claims independently.
+
+Main responsibilities:
+
+- Accept the question, original answer, independent samples, and extracted claims.
+- Validate the input structure.
+- Process each claim independently.
+- Run SelfCheck, BERTScore, and NLI detectors.
+- Preserve the original `claim_id`.
+- Generate claim-level detection results.
+- Calculate an overall risk score.
+- Return structured output for downstream verification.
+
+### 6. NLI Evaluation and Experiments
+
+Created evaluation scripts under `experiments/` to examine NLI behaviour and pipeline execution.
+
+A manually labelled diagnostic dataset of 15 examples was used to evaluate entailment, contradiction, and neutral classification.
+
+**Evaluation Result:**
+
+| Metric | Result |
+|---|---:|
+| Total diagnostic examples | 15 |
+| Correct predictions | 10 |
+| Incorrect predictions | 5 |
+| Accuracy | 66.67% |
+
+All five neutral examples were incorrectly classified as contradictions in this small evaluation.
+
+Consequently, NLI remains available for diagnostic analysis but is excluded from the default combined risk score.
+
+Detailed methodology, results, and limitations are documented in:
+
+`docs/PERSON2_EVALUATION.md`
+
+### 7. Testing Performed
+
+- SelfCheck detector tests.
+- BERTScore detector tests.
+- NLI detector tests.
+- Scoring engine tests.
+- Detection pipeline tests.
+- Input validation and error-handling tests.
+- NLI evaluation experiments.
+- Real pipeline execution experiment.
+
+**Result:** All 17 project tests passed during the Person 2 testing phase.
+
+### Files Created
+
+- `hallucination_detection/selfcheck.py`
+- `hallucination_detection/bertscore_detector.py`
+- `hallucination_detection/nli_detector.py`
+- `hallucination_detection/scoring_engine.py`
+- `hallucination_detection/detection_pipeline.py`
+- `tests/test_selfcheck.py`
+- `tests/test_bertscore_detector.py`
+- `tests/test_nli_detector.py`
+- `tests/test_scoring_engine.py`
+- `tests/test_detection_pipeline.py`
+- `experiments/test_real_pipeline.py`
+- `experiments/test_nli_cases.py`
+- `experiments/test_nli_direction.py`
+- `experiments/evaluate_nli.py`
+- `docs/PERSON2_EVALUATION.md`
+
+### Phase 4 Result
+
+The Person 2 hallucination and consistency detection module has been implemented, tested, documented, and pushed to the `person2-detection` Git branch.
+
+It produces claim-level consistency analysis and experimental risk scores for further evidence-based verification.
+
+**Important Limitation:** Consistency detection does not establish factual truth. Claims identified as potentially suspicious must undergo external evidence verification before a final factual classification is made.
+
+---
+
+# 6. Upcoming Implementation Phases
+
+| Phase | Planned Work | Status |
+|---|---|---|
+| Phase 0 | Project setup and environment configuration | Completed |
+| Phase 1 | Gemini integration and original response generation | Completed |
+| Phase 2 | Multiple independent response generation | Completed |
+| Phase 3 | Sentence segmentation and atomic claim extraction | Completed |
+| Phase 4 | Hallucination and consistency detection | Completed – Person 2 |
+| Phase 5 | External evidence retrieval and ranking | Pending |
+| Phase 6 | Evidence-based NLI verification | Pending |
+| Phase 7 | Claim-level explanations and adaptive verification | Pending |
+| Phase 8 | Streamlit dashboard and integration | Pending |
+| Phase 9 | End-to-end testing, evaluation, and performance analysis | Pending |
+
+---
+
+# 7. How to Run the Project
 
 ### Step 1: Clone or open the project
 
@@ -394,15 +568,22 @@ python main.py
 
 Enter a question when prompted to receive an LLM-generated answer.
 
---- 
+### Step 6: Run the test suite
 
+```powershell
+pytest -v
+```
 
-# 9. References
+---
+
+# 8. References
 
 1. Manakul, P., Liusie, A., & Gales, M. (2023). *SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models*. EMNLP 2023.
 2. Google Gemini API Documentation: https://ai.google.dev/gemini-api/docs
 3. spaCy Documentation: https://spacy.io/usage
 4. Python Documentation: https://docs.python.org/3/
+5. BERTScore: https://github.com/Tiiiger/bert_score
+6. Hugging Face Model – NLI DeBERTa: https://huggingface.co/cross-encoder/nli-deberta-v3-small
 
 ---
 
@@ -410,4 +591,4 @@ Enter a question when prompted to receive an LLM-generated answer.
 **Project Type:** Academic End-Semester Project  
 **Team Size:** 3 Members  
 **Development Approach:** Incremental, modular implementation  
-**Repository:** Git-managed project
+**Repository:** https://github.com/A377548/VeriFact-AI
