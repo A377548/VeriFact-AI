@@ -6,6 +6,9 @@ class NLIDetector:
     """
     Evaluates the relationship between an original claim
     and independently generated sample answers.
+
+    The detector predicts entailment, contradiction or neutral.
+    These predictions are not proof of factual truth.
     """
 
     MODEL_NAME = "cross-encoder/nli-deberta-v3-small"
@@ -36,6 +39,7 @@ class NLIDetector:
         results = []
 
         for sample in samples:
+
             # Original claim is the hypothesis.
             # Sample answer is the premise.
             prediction = self.classifier({
@@ -43,16 +47,56 @@ class NLIDetector:
                 "text_pair": original_claim.strip()
             })
 
-            scores = prediction[0]
+            # Normalize the output returned by Transformers.
+            if isinstance(prediction, dict):
+                scores = [prediction]
 
-            probabilities = {
-                item["label"].lower(): float(item["score"])
-                for item in scores
+            elif isinstance(prediction, list) and prediction:
+                if isinstance(prediction[0], list):
+                    scores = prediction[0]
+                else:
+                    scores = prediction
+
+            else:
+                raise ValueError(
+                    "Unexpected NLI model output format."
+                )
+
+            if not all(isinstance(item, dict) for item in scores):
+                raise ValueError(
+                    "NLI model returned an invalid prediction format."
+                )
+
+            probabilities = {}
+
+            for item in scores:
+                label = item["label"].lower()
+
+                # Handle generic labels such as LABEL_0 if returned.
+                if label.startswith("label_"):
+                    label_id = int(label.split("_")[1])
+                    id2label = self.classifier.model.config.id2label
+                    label = id2label.get(
+                        label_id,
+                        id2label.get(str(label_id), label)
+                    ).lower()
+
+                probabilities[label] = float(item["score"])
+
+            required_labels = {
+                "entailment",
+                "contradiction",
+                "neutral"
             }
 
-            entailment = probabilities.get("entailment", 0.0)
-            contradiction = probabilities.get("contradiction", 0.0)
-            neutral = probabilities.get("neutral", 0.0)
+            if not required_labels.issubset(probabilities):
+                raise ValueError(
+                    f"Unexpected NLI labels: {list(probabilities.keys())}"
+                )
+
+            entailment = probabilities["entailment"]
+            contradiction = probabilities["contradiction"]
+            neutral = probabilities["neutral"]
 
             results.append({
                 "sample": sample,

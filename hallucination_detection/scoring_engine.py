@@ -4,20 +4,31 @@ import math
 
 class HallucinationScoringEngine:
     """
-    Combines SelfCheck, BERTScore and NLI outputs
-    into an experimental hallucination-risk score.
+    Combines SelfCheck and BERTScore into an experimental
+    hallucination-risk score.
+
+    NLI is retained as a diagnostic signal but excluded from
+    the default combined score because its reliability has
+    not yet been adequately validated.
 
     The score is not a probability that a claim is false.
     """
 
     DEFAULT_WEIGHTS = {
-        "selfcheck": 0.30,
-        "bertscore": 0.30,
-        "nli": 0.40
+        "selfcheck": 0.50,
+        "bertscore": 0.50,
+        "nli": 0.00
     }
 
     def __init__(self, weights=None):
-        self.weights = weights or self.DEFAULT_WEIGHTS.copy()
+        self.weights = (
+            weights.copy()
+            if weights is not None
+            else self.DEFAULT_WEIGHTS.copy()
+        )
+
+        if not isinstance(self.weights, dict):
+            raise ValueError("Weights must be a dictionary.")
 
         if set(self.weights) != set(self.DEFAULT_WEIGHTS):
             raise ValueError(
@@ -31,14 +42,15 @@ class HallucinationScoringEngine:
             or value < 0
             for value in self.weights.values()
         ):
-            raise ValueError("Weights must be finite, non-negative numbers.")
+            raise ValueError(
+                "Weights must be finite, non-negative numbers."
+            )
 
         total = sum(self.weights.values())
 
         if total <= 0:
             raise ValueError("At least one weight must be positive.")
 
-        # Normalize weights so that they sum to 1.
         self.weights = {
             name: value / total
             for name, value in self.weights.items()
@@ -66,6 +78,9 @@ class HallucinationScoringEngine:
     ) -> dict:
         """
         Calculate the combined experimental risk score.
+
+        NLI contradiction is reported separately and does not
+        affect the default combined score.
         """
 
         if not all(
@@ -78,19 +93,16 @@ class HallucinationScoringEngine:
         ):
             raise ValueError("All detector results must be dictionaries.")
 
-        # Extract SelfCheck disagreement.
         selfcheck_risk = self._validate_score(
             selfcheck_result.get("overall_risk_score"),
             "SelfCheck risk"
         )
 
-        # Extract BERTScore disagreement.
         bertscore_risk = self._validate_score(
             bertscore_result.get("disagreement_score"),
             "BERTScore disagreement"
         )
 
-        # Calculate average NLI contradiction probability.
         nli_results = nli_result.get("results")
 
         if not isinstance(nli_results, list) or not nli_results:
@@ -111,7 +123,6 @@ class HallucinationScoringEngine:
 
         nli_risk = sum(contradictions) / len(contradictions)
 
-        # Calculate weighted combined risk.
         combined_risk = (
             self.weights["selfcheck"] * selfcheck_risk
             + self.weights["bertscore"] * bertscore_risk
@@ -131,7 +142,9 @@ class HallucinationScoringEngine:
                 for name, value in self.weights.items()
             },
             "interpretation": (
-                "Experimental disagreement and contradiction score; "
-                "not a calibrated probability of hallucination."
+                "Experimental disagreement score based on SelfCheck "
+                "and BERTScore by default. NLI is reported separately "
+                "as an experimental diagnostic signal. This is not "
+                "a calibrated probability of hallucination."
             )
         }

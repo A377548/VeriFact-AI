@@ -62,5 +62,5 @@ def test_pipeline_processes_claim_and_preserves_claim_id():
 
     assert result["claim_count"] == 1
     assert result["results"][0]["claim_id"] == "C001"
-    assert result["results"][0]["combined_score"]["risk_score"] == 21.0
-    assert result["overall_risk_score"] == 21.0
+    assert result["results"][0]["combined_score"]["risk_score"] == 25.0
+    assert result["overall_risk_score"] == 25.0
