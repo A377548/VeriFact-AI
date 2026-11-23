@@ -77,7 +77,7 @@ Numbered original sentences:
 {numbered_sentences}
 """
 
-        response = self.gemini.generate_text(prompt)
+        response = self.gemini.generate_json(prompt)
 
         # Remove Markdown code fences if present
         cleaned_response = re.sub(
